@@ -11,19 +11,31 @@ func createHahs(data ...interface{}) []byte {
 	return h.Sum(nil)
 }
 
-func CreateGoodHash(DL int32, data ...interface{}) ([]byte, string) {
+func CreateGoodHash(DL string, data ...interface{}) ([]byte, string) {
 	flag := false
 	var h []byte
 	var nonce string
+	dl := getDifficultyLevel(DL)
 	for !flag {
 		nonce = GetRandomNonce()
 		data[len(data)] = nonce
 		h = createHahs(data...)
-		flag = isGoodHash(h, DL)
+		flag = isHashOk(h, dl)
 	}
 	return h, nonce
 }
 
-func isGoodHash(hash []byte, difficultyLevel int32) bool {
+func isHashOk(hash []byte, difficultyLevel []byte) bool {
+	if bytes.Equal(hash[28:], difficultyLevel) {
+		return true
+	} 
+	return false
+}
 
+func getDifficultyLevel(difficultyLevel string) []byte {
+	var ret []byte
+	for _, alp := range difficultyLevel {
+		ret = append(ret, int(alp))
+	}
+	return ret
 }
